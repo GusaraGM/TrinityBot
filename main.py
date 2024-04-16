@@ -12,6 +12,13 @@ def start(update: Update, context: CallbackContext) -> None:
         [InlineKeyboardButton("2", callback_data='2')],
         [InlineKeyboardButton("3", callback_data='3')],
         [InlineKeyboardButton("4", callback_data='4')]
+        [InlineKeyboardButton("5", callback_data='5')]
+        [InlineKeyboardButton("6", callback_data='6')]
+        [InlineKeyboardButton("7", callback_data='7')]
+        [InlineKeyboardButton("8", callback_data='8')]
+        [InlineKeyboardButton("9", callback_data='9')]
+        [InlineKeyboardButton("10", callback_data=10')]
+        [InlineKeyboardButton("11", callback_data='11')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text("Выберите класс:", reply_markup=reply_markup)
@@ -71,7 +78,7 @@ def list_users(update: Update, context: CallbackContext) -> None:
         update.message.reply_text(f"На факультете {context.user_data['faculty']} пока нет зарегистрированных пользователей.")
 
 def main() -> None:
-    updater = Updater("6116656907:AAHY_pds7QgOTY-s0UqErlb_Vnc7erVmJngh")
+    updater = Updater("6116656907:AAHY_pds7QgOTY-s0UqErlb_Vnc7erVmJng")
     dispatcher = updater.dispatcher
 
     # Создание таблицы пользователей в базе данных SQLite
@@ -101,4 +108,3 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
-
