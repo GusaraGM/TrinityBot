@@ -5,30 +5,39 @@ import sqlite3
 # Состояния для ConversationHandler
 NAME, EMAIL, CLASS, FACULTY = range(4)
 
+# Словарь для соответствия номера факультета и названия
+FACULTY_DICT = {
+    '1': 'IT',
+    '2': 'Science',
+    '3': 'Sport',
+    '4': 'Languages'
+}
+
+# Словарь для соответствия номера факультета и ссылки
+FACULTY_LINKS = {
+    '1': 'ССЫЛКА НА ФАКУЛЬТЕТ IT',
+    '2': 'ССЫЛКА НА ФАКУЛЬТЕТ SCINCE',
+    '3': 'ССЫЛКА НА ФАКУЛЬТЕТ SPORT',
+    '4': 'ССЫЛКА НА ФАКУЛЬТЕТ LANGUAGES'
+}
+
 # Функция для обработки команды /start
 def start(update: Update, context: CallbackContext) -> None:
     keyboard = [
-        [InlineKeyboardButton("1", callback_data='1')],
-        [InlineKeyboardButton("2", callback_data='2')],
-        [InlineKeyboardButton("3", callback_data='3')],
-        [InlineKeyboardButton("4", callback_data='4')]
-        [InlineKeyboardButton("5", callback_data='5')]
-        [InlineKeyboardButton("6", callback_data='6')]
-        [InlineKeyboardButton("7", callback_data='7')]
-        [InlineKeyboardButton("8", callback_data='8')]
-        [InlineKeyboardButton("9", callback_data='9')]
-        [InlineKeyboardButton("10", callback_data=10')]
-        [InlineKeyboardButton("11", callback_data='11')]
+        [InlineKeyboardButton("1 - IT", callback_data='1')],
+        [InlineKeyboardButton("2 - Science", callback_data='2')],
+        [InlineKeyboardButton("3 - Sport", callback_data='3')],
+        [InlineKeyboardButton("4 - Languages", callback_data='4')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text("Выберите класс:", reply_markup=reply_markup)
-    return CLASS
+    update.message.reply_text("Выберите факультет:", reply_markup=reply_markup)
+    return FACULTY
 
 # Функция для обработки нажатия на кнопку
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     query.answer()
-    context.user_data['class'] = int(query.data)
+    context.user_data['faculty'] = FACULTY_DICT[query.data]
     query.message.reply_text("Введите ваше имя и фамилию:")
     return NAME
 
@@ -39,16 +48,17 @@ def get_name(update: Update, context: CallbackContext) -> None:
     update.message.reply_text("Введите ваш email:")
     return EMAIL
 
-# Функция для обработки ввода email и факультета
+# Функция для обработки ввода email и класса
 def get_email(update: Update, context: CallbackContext) -> None:
     email = update.message.text
     context.user_data['email'] = email
-    update.message.reply_text("Введите ваш факультет:")
-    return FACULTY
+    update.message.reply_text("Введите ваш класс:")
+    return CLASS
 
-# Функция для обработки ввода факультета и завершения регистрации
-def get_faculty(update: Update, context: CallbackContext) -> None:
-    faculty = update.message.text
+# Функция для обработки ввода класса и завершения регистрации
+def get_class(update: Update, context: CallbackContext) -> None:
+    class_ = update.message.text
+    context.user_data['class'] = class_
     user_id = update.message.from_user.id
     conn = sqlite3.connect('users.db')
     c = conn.cursor()
@@ -57,10 +67,11 @@ def get_faculty(update: Update, context: CallbackContext) -> None:
     if user:
         update.message.reply_text("Вы уже зарегистрированы.")
     else:
-        c.execute("INSERT INTO users (user_id, name, email, class, faculty) VALUES (?, ?, ?, ?, ?)", (user_id, context.user_data['name'], context.user_data['email'], context.user_data['class'], faculty))
+        c.execute("INSERT INTO users (user_id, name, email, class, faculty) VALUES (?, ?, ?, ?, ?)", (user_id, context.user_data['name'], context.user_data['email'], context.user_data['class'], context.user_data['faculty']))
         conn.commit()
         conn.close()
         update.message.reply_text("Регистрация успешно завершена!")
+        update.message.reply_text(FACULTY_LINKS[context.user_data['faculty']])  # Отправляем ссылку
     return ConversationHandler.END
 
 # Функция для обработки команды /list
@@ -85,17 +96,18 @@ def main() -> None:
     conn = sqlite3.connect('users.db')
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS users 
-                 (user_id INTEGER PRIMARY KEY, name TEXT, email TEXT, class INTEGER, faculty TEXT)''')
+             (user_id INTEGER PRIMARY KEY, name TEXT, email TEXT, class INTEGER, faculty TEXT)''')
+    c.execute('''ALTER TABLE users ADD COLUMN name TEXT''')
     conn.commit()
     conn.close()
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            CLASS: [CallbackQueryHandler(button)],
+            FACULTY: [CallbackQueryHandler(button)],
             NAME: [MessageHandler(Filters.text & ~Filters.command, get_name)],
             EMAIL: [MessageHandler(Filters.text & ~Filters.command, get_email)],
-            FACULTY: [MessageHandler(Filters.text & ~Filters.command, get_faculty)]
+            CLASS: [MessageHandler(Filters.text & ~Filters.command, get_class)]
         },
         fallbacks=[]
     )
