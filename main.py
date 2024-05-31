@@ -15,10 +15,10 @@ FACULTY_DICT = {
 
 # Словарь для соответствия номера факультета и ссылки
 FACULTY_LINKS = {
-    '1': 'ССЫЛКА НА ФАКУЛЬТЕТ IT',
-    '2': 'ССЫЛКА НА ФАКУЛЬТЕТ SCINCE',
-    '3': 'ССЫЛКА НА ФАКУЛЬТЕТ SPORT',
-    '4': 'ССЫЛКА НА ФАКУЛЬТЕТ LANGUAGES'
+    '1': 'https://t.me/+CV8NlXwm5itjYmFi',
+    '2': 'https://t.me/+7TExzivl9nQ4MTVi',
+    '3': 'https://t.me/+rS00SeRn1fozZTgy',
+    '4': 'https://t.me/+go-OFQePuq1jYTIy'
 }
 
 # Функция для обработки команды /start
